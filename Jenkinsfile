@@ -21,5 +21,10 @@ pipeline {
             '''
         }
         }
+    
+    stages ("Test")
+    steps {
+        echo "Test"
+    }
     }
 }
