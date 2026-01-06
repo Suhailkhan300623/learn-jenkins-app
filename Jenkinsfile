@@ -1,45 +1,40 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'node:18-alpine'
+            // reuseNode true is helpful if you have specific workspace requirements
+            reuseNode true 
+        }
+    }
 
-    stages{
+    stages {
         stage("Build") {
-        
-        agent {
-            docker {
-                image 'node:18-alpine'
-                reuseNode true
+            steps {
+                sh '''
+                ls -la
+                npm --version
+                node --version
+                npm ci
+                npm run build
+                ls -la
+                '''
             }
-        }
-        steps {
-            sh '''
-            ls -la
-            npm --version
-            node --version
-            npm ci
-            npm run build
-            ls -la
-            '''
-        }
         }
     
-    stage ("Test"){
-        agent {
-            docker {
-                image 'node:18-alpine'
-                reuseNode true
+        stage("Test") {
+            steps {
+                sh '''
+                test -f src/index.css
+                npm test
+                '''
             }
         }
-    steps {
-        sh '''
-        test -f src/index.css
-        npm test
-        '''
-    }
-}
+    } 
+
     post {
         always {
+           
             junit 'test-results/junit.xml'
         }
-    }
     }
 }
